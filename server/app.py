@@ -1,4 +1,3 @@
-# server/app.py
 #!/usr/bin/env python3
 
 from flask import Flask, make_response
@@ -20,7 +19,32 @@ def index():
     body = {'message': 'Flask SQLAlchemy Lab 1'}
     return make_response(body, 200)
 
-# Add views here
+
+@app.route('/earthquakes/<int:id>')
+def earthquake_by_id(id):
+    quake = Earthquake.query.filter_by(id=id).first()
+
+    if quake is None:
+        return make_response(
+            {"message": f"Earthquake {id} not found."},
+            404
+        )
+
+    return make_response(quake.to_dict(), 200)
+
+
+@app.route('/earthquakes/magnitude/<float:magnitude>')
+def earthquakes_by_magnitude(magnitude):
+    quakes = Earthquake.query.filter(
+        Earthquake.magnitude >= magnitude
+    ).all()
+
+    body = {
+        "count": len(quakes),
+        "quakes": [q.to_dict() for q in quakes]
+    }
+
+    return make_response(body, 200)
 
 
 if __name__ == '__main__':
